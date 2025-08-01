@@ -8,6 +8,7 @@ export default function Welcome() {
   const [adjustData, setAdjustData] = useState({ id: '', delta: '' });
   const [editId, setEditId] = useState(null);
   const [report, setReport] = useState([]);
+  const [reportType, setReportType] = useState('');
 
   const token = localStorage.getItem('token');
 
@@ -138,7 +139,25 @@ export default function Welcome() {
   };
 
   //report function
+// const fetchReport = (type) => {
+//   fetch(`http://localhost:5000/api/reports/${type}`, {
+//     headers: { Authorization: `Bearer ${token}` }
+//   })
+//     .then(res => res.json())
+//     .then(data => {
+//       if (Array.isArray(data)) {
+//         setReport(data);
+//       } else {
+//         console.error("Unexpected report format:", data);
+//         setReport([]);
+//       }
+//     })
+//     .catch(err => console.error("Error fetching report:", err));
+// };
+
 const fetchReport = (type) => {
+  setReportType(type); // <-- this line ensures we track the selected report type
+
   fetch(`http://localhost:5000/api/reports/${type}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
@@ -153,7 +172,6 @@ const fetchReport = (type) => {
     })
     .catch(err => console.error("Error fetching report:", err));
 };
-
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Product Manager</h1>
@@ -259,7 +277,7 @@ const fetchReport = (type) => {
         </button>
       </div>
 
-      {Array.isArray(report) && (
+      {/* {Array.isArray(report) && (
         <div className="mt-6">
           <h2 className="text-xl font-bold mb-2">Report</h2>
           <table className="w-full border" style={{ background: 'white' }}>
@@ -290,6 +308,97 @@ const fetchReport = (type) => {
       )}
 
       {Array.isArray(report) && report.length > 0 && report[0].delta !== undefined && (
+  <div className="mt-6">
+    <h2 className="text-xl font-bold mb-2">Quantity Modified Report</h2>
+    <table className="w-full border">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border p-2">Product ID</th>
+          <th className="border p-2">Product Name</th>
+          <th className="border p-2">Amount Added/Removed</th>
+          <th className="border p-2">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {report.map((adj, i) => (
+          <tr key={i}>
+            <td className="border p-2">{adj.productId}</td>
+            <td className="border p-2">{adj.productName}</td>
+            <td className="border p-2">
+              {adj.delta > 0 ? `+${adj.delta}` : adj.delta}
+            </td>
+            <td className="border p-2">
+              {new Date(adj.adjustedAt).toLocaleString()}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)} */}
+
+{reportType === 'daily' && (
+  <div className="mt-6">
+    <h2 className="text-xl font-bold mb-2">Daily Report</h2>
+    <table className="w-full border" style={{ background: 'white' }}>
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border p-2">ID</th>
+          <th className="border p-2">Name</th>
+          <th className="border p-2">Price</th>
+          <th className="border p-2">Quantity</th>
+          <th className="border p-2">Created</th>
+          <th className="border p-2">Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {report.map((r, i) => (
+          <tr key={r.id || r._id || i}>
+            <td className="border p-2">{r.id || r._id}</td>
+            <td className="border p-2">{r.name || r.product?.name || 'N/A'}</td>
+            <td className="border p-2">${r.price}</td>
+            <td className="border p-2">{r.quantity}</td>
+            <td className="border p-2">{r.createdAt ? new Date(r.createdAt).toLocaleString() : 'N/A'}</td>
+            <td className="border p-2">{r.updatedAt ? new Date(r.updatedAt).toLocaleString() : 'N/A'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+
+{reportType === 'weekly' && (
+  <div className="mt-6">
+    <h2 className="text-xl font-bold mb-2">Weekly Report</h2>
+    {/* Copy same table structure as daily above if needed */}
+     <table className="w-full border" style={{ background: 'white' }}>
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border p-2">ID</th>
+          <th className="border p-2">Name</th>
+          <th className="border p-2">Price</th>
+          <th className="border p-2">Quantity</th>
+          <th className="border p-2">Created</th>
+          <th className="border p-2">Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {report.map((r, i) => (
+          <tr key={r.id || r._id || i}>
+            <td className="border p-2">{r.id || r._id}</td>
+            <td className="border p-2">{r.name || r.product?.name || 'N/A'}</td>
+            <td className="border p-2">${r.price}</td>
+            <td className="border p-2">{r.quantity}</td>
+            <td className="border p-2">{r.createdAt ? new Date(r.createdAt).toLocaleString() : 'N/A'}</td>
+            <td className="border p-2">{r.updatedAt ? new Date(r.updatedAt).toLocaleString() : 'N/A'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+
+{reportType === 'adjustments' && (
   <div className="mt-6">
     <h2 className="text-xl font-bold mb-2">Quantity Modified Report</h2>
     <table className="w-full border">
